@@ -1,0 +1,99 @@
+
+
+
+class _MapState extends State<Map> {
+  late List<Model> _data;
+  late MapTileLayerController _controller;
+
+  @override
+  void initState() {
+    _data = <Model>[
+      Model(-14.235004, -51.92528, Icon(Icons.location_on_sharp)),
+      Model(51.16569, 10.451526, Icon(Icons.location_on_sharp)),
+      Model(-25.274398, 133.775136, Icon(Icons.location_on_sharp)),
+      Model(61.52401, 105.318756, Icon(Icons.location_on_sharp))
+    ];
+    _controller = MapTileLayerController();
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          SfMaps(
+            layers: <MapLayer>[
+              MapTileLayer(
+                urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                initialFocalLatLng:
+                MapLatLng(21.067136662086245, 105.74535530793281),
+                initialMarkersCount: _data.length,
+                markerBuilder: (BuildContext context, int index) {
+                  return MapMarker(
+                    latitude: _data[index].latitude,
+                    longitude: _data[index].longitude,
+                    child: _data[index].icon,
+                  );
+                },
+                controller: _controller,
+              ),
+            ],
+          ),
+          Wrap(
+            spacing: 10,
+            children: [
+              ElevatedButton(
+                child: Text('Add'),
+                onPressed: () {
+                  _data.add(Model(47.22215070954825, 133.69129194622042, Icon(Icons.add_location)));
+                  int length = _data.length;
+                  if (length > 1) {
+                    _controller.insertMarker(_data.length - 1);
+                  } else {
+                    _controller.insertMarker(0);
+                  }
+                },
+              ),
+              ElevatedButton(
+                child: Text('Update'),
+                onPressed: () {
+                  int length = _data.length;
+                  if (length > 0) {
+                    _data[length - 1].icon = Icon(Icons.edit_location);
+                    _controller.updateMarkers([length - 1]);
+                  }
+                },
+              ),
+              ElevatedButton(
+                child: Text('Remove'),
+                onPressed: () {
+                  int index = _data.length - 1;
+                  if (index > 0) {
+                    _data.removeAt(index);
+                    _controller.removeMarkerAt(index);
+                  }
+                },
+              ),
+              ElevatedButton(
+                child: Text('Clear'),
+                onPressed: () {
+                  _data.clear();
+                  _controller.clearMarkers();
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+  }
+}
+
+class Model {
+  Model(this.latitude, this.longitude, this.icon);
+
+  final double latitude;
+  final double longitude;
+  Icon icon;
+}
